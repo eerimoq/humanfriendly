@@ -145,43 +145,43 @@ TEST(test_format_timespan)
     } datas[] = {
          {
              .timespan_ms = 0,
-             .expected_p = "0 secs"
+             .expected_p = "0s"
          },
          {
              .timespan_ms = 1,
-             .expected_p = "0.001 secs"
+             .expected_p = "1ms"
          },
          {
              .timespan_ms = 10,
-             .expected_p = "0.01 secs"
+             .expected_p = "10ms"
          },
          {
              .timespan_ms = 100,
-             .expected_p = "0.1 secs"
+             .expected_p = "100ms"
          },
          {
              .timespan_ms = 1000,
-             .expected_p = "1 sec"
+             .expected_p = "1s"
          },
          {
              .timespan_ms = 1001,
-             .expected_p = "1.001 secs"
+             .expected_p = "1s and 1ms"
          },
          {
              .timespan_ms = 2 * SECOND,
-             .expected_p = "2 secs"
+             .expected_p = "2s"
          },
          {
              .timespan_ms = 2 * MINUTE,
-             .expected_p = "2 mins"
+             .expected_p = "2m"
          },
          {
              .timespan_ms = WEEK + 1,
-             .expected_p = "1 week and 0.001 secs"
+             .expected_p = "1w and 1ms"
          },
          {
              .timespan_ms = (1 * YEAR + 2 * DAY + 3 * HOUR),
-             .expected_p = "1 year, 2 days and 3 hours"
+             .expected_p = "1y, 2d and 3h"
          }
     };
 
@@ -194,10 +194,10 @@ TEST(test_format_timespan)
 
 TEST(test_format_timespan_short_buffer)
 {
-    char buf[5];
+    char buf[2];
 
     ASSERT_EQ(hf_format_timespan(&buf[0], sizeof(buf), 0), &buf[0]);
-    ASSERT_EQ(&buf[0], "0 se");
+    ASSERT_EQ(&buf[0], "0");
 }
 
 TEST(test_format_timespan_very_short_buffer)

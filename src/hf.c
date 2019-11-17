@@ -32,7 +32,7 @@
 #include <pwd.h>
 #include "hf.h"
 
-#define TIME_UNITS_MAX 6
+#define TIME_UNITS_MAX 7
 
 char *hf_get_username(char *buf_p, size_t size, const char *default_p)
 {
@@ -85,52 +85,39 @@ char *hf_get_hostname(char *buf_p, size_t size, const char *default_p)
 /* Common time units, used for formatting of time spans. */
 struct time_unit_t {
     unsigned long divider;
-    const char *singular_p;
-    const char *plural_p;
+    const char *unit_p;
 };
 
 static struct time_unit_t time_units[TIME_UNITS_MAX] = {
     {
         .divider = 60 * 60 * 24 * 7 * 52 * 1000ul,
-        .singular_p = "year",
-        .plural_p = "years"
+        .unit_p = "y"
     },
     {
         .divider = 60 * 60 * 24 * 7 * 1000ul,
-        .singular_p = "week",
-        .plural_p = "weeks"
+        .unit_p = "w"
     },
     {
         .divider = 60 * 60 * 24 * 1000ul,
-        .singular_p = "day",
-        .plural_p = "days"
+        .unit_p = "d"
     },
     {
         .divider = 60 * 60 * 1000ul,
-        .singular_p = "hour",
-        .plural_p = "hours"
+        .unit_p = "h"
     },
     {
         .divider = 60 * 1000ul,
-        .singular_p = "min",
-        .plural_p = "mins"
+        .unit_p = "m"
     },
     {
         .divider = 1000ul,
-        .singular_p = "sec",
-        .plural_p = "secs"
+        .unit_p = "s"
+    },
+    {
+        .divider = 1ul,
+        .unit_p = "ms"
     }
 };
-
-static const char *get_time_unit(struct time_unit_t *self_p,
-                                 unsigned long value)
-{
-    if (value == 1) {
-        return (self_p->singular_p);
-    } else {
-        return (self_p->plural_p);
-    }
-}
 
 const char *get_delimiter(bool is_first, bool is_last)
 {
@@ -143,17 +130,6 @@ const char *get_delimiter(bool is_first, bool is_last)
     }
 }
 
-int get_width(unsigned long long value)
-{
-    if (value < 10) {
-        return (3);
-    } else if (value < 100) {
-        return (2);
-    } else {
-        return (1);
-    }
-}
-
 char *hf_format_timespan(char *buf_p,
                          size_t size,
                          unsigned long long timespan_ms)
@@ -161,11 +137,10 @@ char *hf_format_timespan(char *buf_p,
     int i;
     unsigned long long count;
     char buf[64];
-    char fraction[32];
 
     strncpy(buf_p, "", size);
 
-    for (i = 0; i < (TIME_UNITS_MAX - 1); i++) {
+    for (i = 0; i < TIME_UNITS_MAX; i++) {
         count = (timespan_ms / time_units[i].divider);
         timespan_ms -= (count * time_units[i].divider);
 
@@ -175,39 +150,15 @@ char *hf_format_timespan(char *buf_p,
 
         snprintf(&buf[0],
                  sizeof(buf),
-                 "%s%llu %s",
+                 "%s%llu%s",
                  get_delimiter(strlen(buf_p) == 0, timespan_ms == 0),
                  count,
-                 get_time_unit(&time_units[i], count));
-        strncat(buf_p, &buf[0], size);
-    }
-
-    if (timespan_ms > 0) {
-        count = (timespan_ms / time_units[i].divider);
-        timespan_ms -= (count * time_units[i].divider);
-
-        if (timespan_ms == 0) {
-            strcpy(&fraction[0], "");
-        } else if (timespan_ms < 10) {
-            sprintf(&fraction[0], ".%03llu", timespan_ms);
-        } else if (timespan_ms < 100) {
-            sprintf(&fraction[0], ".%02llu", timespan_ms / 10);
-        } else {
-            sprintf(&fraction[0], ".%01llu", timespan_ms / 100);
-        }
-
-        snprintf(&buf[0],
-                 sizeof(buf),
-                 "%s%llu%s %s",
-                 get_delimiter(strlen(buf_p) == 0, true),
-                 count,
-                 &fraction[0],
-                 get_time_unit(&time_units[i], count + 2 * timespan_ms));
+                 time_units[i].unit_p);
         strncat(buf_p, &buf[0], size);
     }
 
     if (strlen(buf_p) == 0) {
-        strncpy(buf_p, "0 secs", size);
+        strncpy(buf_p, "0s", size);
     }
 
     buf_p[size - 1] = '\0';
