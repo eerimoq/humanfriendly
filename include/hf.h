@@ -36,3 +36,9 @@
  * cannot be determined and default_p is NULL.
  */
 char *hf_get_username(char *buf_p, size_t size, const char *default_p);
+
+/**
+ * Get the hostname. Returns the hostname, the default hostname, or
+ * NULL if the hostname cannot be determined and default_p is NULL.
+ */
+char *hf_get_hostname(char *buf_p, size_t size, const char *default_p);

@@ -46,11 +46,34 @@ char *hf_get_username(char *buf_p, size_t size, const char *default_p)
         }
     } else {
         strncpy(buf_p, passwd_p->pw_name, size);
-        
+
         if (size > 0) {
             buf_p[size - 1] = '\0';
         }
     }
+
+    buf_p[size - 1] = '\0';
+
+    return (res_p);
+}
+
+char *hf_get_hostname(char *buf_p, size_t size, const char *default_p)
+{
+    int res;
+    char *res_p;
+
+    res_p = buf_p;
+    res = gethostname(buf_p, size);
+
+    if (res != 0) {
+        if (default_p == NULL) {
+            res_p = NULL;
+        } else {
+            strncpy(buf_p, default_p, size);
+        }
+    }
+
+    buf_p[size - 1] = '\0';
 
     return (res_p);
 }

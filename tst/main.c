@@ -64,3 +64,64 @@ TEST(test_get_username_default)
     ASSERT_EQ(hf_get_username(&buf[0], sizeof(buf), "unknown"), &buf[0]);
     ASSERT_EQ(&buf[0], "unknown");
 }
+
+TEST(test_get_username_default_longer_than_buffer)
+{
+    char buf[32];
+
+    geteuid_mock_once(4);
+    getpwuid_mock_once(4, NULL);
+
+    ASSERT_EQ(hf_get_username(&buf[0],
+                              sizeof(buf),
+                              "12345678901234567890123456789012"),
+              &buf[0]);
+    ASSERT_EQ(&buf[0], "1234567890123456789012345678901");
+}
+
+TEST(test_get_hostname_ok)
+{
+    char buf[32];
+
+    gethostname_mock_once(NULL, 32, 0);
+    gethostname_mock_ignore___name_in();
+    gethostname_mock_set___name_out("foobar", 7);
+
+    ASSERT_EQ(hf_get_hostname(&buf[0], sizeof(buf), ""), &buf[0]);
+    ASSERT_EQ(&buf[0], "foobar");
+}
+
+TEST(test_get_hostname_default_null)
+{
+    char buf[32];
+
+    gethostname_mock_once(NULL, 32, -1);
+    gethostname_mock_ignore___name_in();
+
+    ASSERT_EQ((void *)hf_get_hostname(&buf[0], sizeof(buf), NULL), NULL);
+}
+
+TEST(test_get_hostname_default)
+{
+    char buf[32];
+
+    gethostname_mock_once(NULL, 32, -1);
+    gethostname_mock_ignore___name_in();
+
+    ASSERT_EQ(hf_get_hostname(&buf[0], sizeof(buf), "unknown"), &buf[0]);
+    ASSERT_EQ(&buf[0], "unknown");
+}
+
+TEST(test_get_hostname_default_longer_than_buffer)
+{
+    char buf[32];
+
+    gethostname_mock_once(NULL, 32, -1);
+    gethostname_mock_ignore___name_in();
+
+    ASSERT_EQ(hf_get_hostname(&buf[0],
+                              sizeof(buf),
+                              "12345678901234567890123456789012"),
+              &buf[0]);
+    ASSERT_EQ(&buf[0], "1234567890123456789012345678901");
+}
