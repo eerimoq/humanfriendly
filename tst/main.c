@@ -31,6 +31,15 @@
 #include "nala.h"
 #include "nala_mocks.h"
 
+#define membersof(a) (sizeof(a) / sizeof((a)[0]))
+
+#define SECOND (1000ul)
+#define MINUTE (60ul * SECOND)
+#define HOUR   (60ul * MINUTE)
+#define DAY    (24ul * HOUR)
+#define WEEK   (7ul * DAY)
+#define YEAR   (52ul * WEEK)
+
 TEST(test_get_username_ok)
 {
     char buf[32];
@@ -124,4 +133,77 @@ TEST(test_get_hostname_default_longer_than_buffer)
                               "12345678901234567890123456789012"),
               &buf[0]);
     ASSERT_EQ(&buf[0], "1234567890123456789012345678901");
+}
+
+TEST(test_format_timespan)
+{
+    char buf[128];
+    int i;
+    struct data_t {
+        unsigned long long timespan_ms;
+        const char *expected_p;
+    } datas[] = {
+         {
+             .timespan_ms = 0,
+             .expected_p = "0 seconds"
+         },
+         {
+             .timespan_ms = 1,
+             .expected_p = "1 millisecond"
+         },
+         {
+             .timespan_ms = 10,
+             .expected_p = "10 milliseconds"
+         },
+         {
+             .timespan_ms = 100,
+             .expected_p = "100 milliseconds"
+         },
+         {
+             .timespan_ms = 1000,
+             .expected_p = "1 second"
+         },
+         {
+             .timespan_ms = 1001,
+             .expected_p = "1 second and 1 millisecond"
+         },
+         {
+             .timespan_ms = 2 * SECOND,
+             .expected_p = "2 seconds"
+         },
+         {
+             .timespan_ms = 2 * MINUTE,
+             .expected_p = "2 minutes"
+         },
+         {
+             .timespan_ms = WEEK + 1,
+             .expected_p = "1 week and 1 millisecond"
+         },
+         {
+             .timespan_ms = (1 * YEAR + 2 * DAY + 3 * HOUR),
+             .expected_p = "1 year, 2 days and 3 hours"
+         }
+    };
+
+    for (i = 0; i < membersof(datas); i++) {
+        ASSERT_EQ(hf_format_timespan(&buf[0], sizeof(buf), datas[i].timespan_ms),
+                  &buf[0]);
+        ASSERT_EQ(&buf[0], datas[i].expected_p);
+    }
+}
+
+TEST(test_format_timespan_short_buffer)
+{
+    char buf[5];
+
+    ASSERT_EQ(hf_format_timespan(&buf[0], sizeof(buf), 0), &buf[0]);
+    ASSERT_EQ(&buf[0], "0 se");
+}
+
+TEST(test_format_timespan_very_short_buffer)
+{
+    char buf[1];
+
+    ASSERT_EQ(hf_format_timespan(&buf[0], sizeof(buf), 0), &buf[0]);
+    ASSERT_EQ(&buf[0], "");
 }

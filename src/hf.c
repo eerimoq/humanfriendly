@@ -27,8 +27,12 @@
  */
 
 #include <string.h>
+#include <stdbool.h>
+#include <stdio.h>
 #include <pwd.h>
 #include "hf.h"
+
+#define TIME_UNITS_MAX 7
 
 char *hf_get_username(char *buf_p, size_t size, const char *default_p)
 {
@@ -76,4 +80,106 @@ char *hf_get_hostname(char *buf_p, size_t size, const char *default_p)
     buf_p[size - 1] = '\0';
 
     return (res_p);
+}
+
+/* Common time units, used for formatting of time spans. */
+struct time_unit_t {
+    unsigned long divider;
+    const char *singular_p;
+    const char *plural_p;
+};
+
+static struct time_unit_t time_units[TIME_UNITS_MAX] = {
+    {
+        .divider = 60 * 60 * 24 * 7 * 52 * 1000ul,
+        .singular_p = "year",
+        .plural_p = "years"
+    },
+    {
+        .divider = 60 * 60 * 24 * 7 * 1000ul,
+        .singular_p = "week",
+        .plural_p = "weeks"
+    },
+    {
+        .divider = 60 * 60 * 24 * 1000ul,
+        .singular_p = "day",
+        .plural_p = "days"
+    },
+    {
+        .divider = 60 * 60 * 1000ul,
+        .singular_p = "hour",
+        .plural_p = "hours"
+    },
+    {
+        .divider = 60 * 1000ul,
+        .singular_p = "minute",
+        .plural_p = "minutes"
+    },
+    {
+        .divider = 1000ul,
+        .singular_p = "second",
+        .plural_p = "seconds"
+    },
+    {
+        .divider = 1ul,
+        .singular_p = "millisecond",
+        .plural_p = "milliseconds"
+    }
+};
+
+static const char *get_time_unit(struct time_unit_t *self_p,
+                                 unsigned long value)
+{
+    if (value == 1) {
+        return (self_p->singular_p);
+    } else {
+        return (self_p->plural_p);
+    }
+}
+
+const char *get_delimiter(bool is_first, bool is_last)
+{
+    if (is_first) {
+        return ("");
+    } else if (is_last) {
+        return (" and ");
+    } else {
+        return (", ");
+    }
+}
+
+char *hf_format_timespan(char *buf_p,
+                         size_t size,
+                         unsigned long long timespan_ms)
+{
+    int i;
+    unsigned long long count;
+    char buf[32];
+
+    strncpy(buf_p, "", size);
+
+    for (i = 0; i < TIME_UNITS_MAX; i++) {
+        count = (timespan_ms / time_units[i].divider);
+        timespan_ms -= (count * time_units[i].divider);
+
+        if (count == 0) {
+            continue;
+        }
+
+        snprintf(&buf[0],
+                 sizeof(buf),
+                 "%s%llu %s",
+                 get_delimiter(strlen(buf_p) == 0, timespan_ms == 0),
+                 count,
+                 get_time_unit(&time_units[i], count));
+        strncat(buf_p, &buf[0], size);
+    }
+
+    if (strlen(buf_p) == 0) {
+        strncpy(buf_p, "0 seconds", size);
+    }
+
+    buf_p[size - 1] = '\0';
+
+    return (buf_p);
 }
