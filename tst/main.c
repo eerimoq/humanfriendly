@@ -145,39 +145,39 @@ TEST(test_format_timespan)
     } datas[] = {
          {
              .timespan_ms = 0,
-             .expected_p = "0 seconds"
+             .expected_p = "0 secs"
          },
          {
              .timespan_ms = 1,
-             .expected_p = "1 millisecond"
+             .expected_p = "0.001 secs"
          },
          {
              .timespan_ms = 10,
-             .expected_p = "10 milliseconds"
+             .expected_p = "0.01 secs"
          },
          {
              .timespan_ms = 100,
-             .expected_p = "100 milliseconds"
+             .expected_p = "0.1 secs"
          },
          {
              .timespan_ms = 1000,
-             .expected_p = "1 second"
+             .expected_p = "1 sec"
          },
          {
              .timespan_ms = 1001,
-             .expected_p = "1 second and 1 millisecond"
+             .expected_p = "1.001 secs"
          },
          {
              .timespan_ms = 2 * SECOND,
-             .expected_p = "2 seconds"
+             .expected_p = "2 secs"
          },
          {
              .timespan_ms = 2 * MINUTE,
-             .expected_p = "2 minutes"
+             .expected_p = "2 mins"
          },
          {
              .timespan_ms = WEEK + 1,
-             .expected_p = "1 week and 1 millisecond"
+             .expected_p = "1 week and 0.001 secs"
          },
          {
              .timespan_ms = (1 * YEAR + 2 * DAY + 3 * HOUR),

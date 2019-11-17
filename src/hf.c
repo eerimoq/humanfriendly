@@ -32,7 +32,7 @@
 #include <pwd.h>
 #include "hf.h"
 
-#define TIME_UNITS_MAX 7
+#define TIME_UNITS_MAX 6
 
 char *hf_get_username(char *buf_p, size_t size, const char *default_p)
 {
@@ -112,18 +112,13 @@ static struct time_unit_t time_units[TIME_UNITS_MAX] = {
     },
     {
         .divider = 60 * 1000ul,
-        .singular_p = "minute",
-        .plural_p = "minutes"
+        .singular_p = "min",
+        .plural_p = "mins"
     },
     {
         .divider = 1000ul,
-        .singular_p = "second",
-        .plural_p = "seconds"
-    },
-    {
-        .divider = 1ul,
-        .singular_p = "millisecond",
-        .plural_p = "milliseconds"
+        .singular_p = "sec",
+        .plural_p = "secs"
     }
 };
 
@@ -148,17 +143,29 @@ const char *get_delimiter(bool is_first, bool is_last)
     }
 }
 
+int get_width(unsigned long long value)
+{
+    if (value < 10) {
+        return (3);
+    } else if (value < 100) {
+        return (2);
+    } else {
+        return (1);
+    }
+}
+
 char *hf_format_timespan(char *buf_p,
                          size_t size,
                          unsigned long long timespan_ms)
 {
     int i;
     unsigned long long count;
-    char buf[32];
+    char buf[64];
+    char fraction[32];
 
     strncpy(buf_p, "", size);
 
-    for (i = 0; i < TIME_UNITS_MAX; i++) {
+    for (i = 0; i < (TIME_UNITS_MAX - 1); i++) {
         count = (timespan_ms / time_units[i].divider);
         timespan_ms -= (count * time_units[i].divider);
 
@@ -175,8 +182,32 @@ char *hf_format_timespan(char *buf_p,
         strncat(buf_p, &buf[0], size);
     }
 
+    if (timespan_ms > 0) {
+        count = (timespan_ms / time_units[i].divider);
+        timespan_ms -= (count * time_units[i].divider);
+
+        if (timespan_ms == 0) {
+            strcpy(&fraction[0], "");
+        } else if (timespan_ms < 10) {
+            sprintf(&fraction[0], ".%03llu", timespan_ms);
+        } else if (timespan_ms < 100) {
+            sprintf(&fraction[0], ".%02llu", timespan_ms / 10);
+        } else {
+            sprintf(&fraction[0], ".%01llu", timespan_ms / 100);
+        }
+
+        snprintf(&buf[0],
+                 sizeof(buf),
+                 "%s%llu%s %s",
+                 get_delimiter(strlen(buf_p) == 0, true),
+                 count,
+                 &fraction[0],
+                 get_time_unit(&time_units[i], count + 2 * timespan_ms));
+        strncat(buf_p, &buf[0], size);
+    }
+
     if (strlen(buf_p) == 0) {
-        strncpy(buf_p, "0 seconds", size);
+        strncpy(buf_p, "0 secs", size);
     }
 
     buf_p[size - 1] = '\0';
