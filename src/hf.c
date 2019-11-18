@@ -164,7 +164,7 @@ char *hf_format_timespan(char *buf_p,
         hf_null_last(buf_p, size);
 
         if (res > 0) {
-            offset += res;
+            offset += (size_t)res;
         }
     }
 
