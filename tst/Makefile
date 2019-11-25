@@ -8,7 +8,7 @@ SRC += \
 	main.c
 CFLAGS += \
 	-Werror \
-	-O1 \
+	-O0 \
 	-no-pie \
 	-g \
 	-Wall \
