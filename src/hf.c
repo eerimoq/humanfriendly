@@ -191,9 +191,7 @@ long hf_string_to_long(const char *string_p,
     errno = 0;
     value = strtol(string_p, &end_p, base);
 
-    if ((errno == ERANGE) && ((value == LONG_MIN) || (value == LONG_MAX))) {
-        value = default_value;
-    } else if ((errno != 0) && (value == 0)) {
+    if ((errno != 0) && (value == 0)) {
         value = default_value;
     } else if (end_p == string_p) {
         value = default_value;

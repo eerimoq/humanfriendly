@@ -216,4 +216,16 @@ TEST(test_string_to_long)
     ASSERT_EQ(hf_string_to_long("-11", -10, 10, -1, 0), -10);
     ASSERT_EQ(hf_string_to_long("11", -10, 10, -1, 0), 10);
     ASSERT_EQ(hf_string_to_long("1a", -10, 10, -1, 10), -1);
+    ASSERT_EQ(hf_string_to_long("11111111111111111111111111111111111111",
+                                -10,
+                                10,
+                                -1,
+                                10),
+              10);
+    ASSERT_EQ(hf_string_to_long("-11111111111111111111111111111111111111",
+                                -10,
+                                10,
+                                -1,
+                                10),
+              -10);
 }
