@@ -229,3 +229,17 @@ TEST(test_string_to_long)
                                 10),
               -10);
 }
+
+TEST(test_buffer_to_string)
+{
+    char buf[8];
+
+    ASSERT_EQ(hf_buffer_to_string(&buf[0], sizeof(buf), "", 0), &buf[0]);
+    ASSERT_MEMORY(&buf[0], "", 1);
+
+    ASSERT_EQ(hf_buffer_to_string(&buf[0], sizeof(buf), "1", 1), &buf[0]);
+    ASSERT_MEMORY(&buf[0], "1", 2);
+
+    ASSERT_EQ(hf_buffer_to_string(&buf[0], sizeof(buf), "12345678", 8), &buf[0]);
+    ASSERT_MEMORY(&buf[0], "1234567", 8);
+}

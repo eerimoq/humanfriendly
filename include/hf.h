@@ -59,3 +59,8 @@ long hf_string_to_long(const char *string_p,
                        long maximum,
                        long default_value,
                        int base);
+
+char *hf_buffer_to_string(char *dst_p,
+                          size_t dst_size,
+                          const void *src_p,
+                          size_t src_size);

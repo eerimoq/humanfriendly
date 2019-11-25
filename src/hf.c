@@ -209,3 +209,21 @@ long hf_string_to_long(const char *string_p,
 
     return (value);
 }
+
+char *hf_buffer_to_string(char *dst_p,
+                          size_t dst_size,
+                          const void *src_p,
+                          size_t src_size)
+{
+    if (src_size > 0) {
+        if (src_size > (dst_size - 1)) {
+            src_size = (dst_size - 1);
+        }
+
+        memcpy(dst_p, src_p, src_size);
+    }
+
+    dst_p[src_size] = '\0';
+
+    return (dst_p);
+}
