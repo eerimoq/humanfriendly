@@ -26,9 +26,12 @@
  * This file is part of the humanfriendly project.
  */
 
+#include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <errno.h>
+#include <limits.h>
 #include <pwd.h>
 #include "hf.h"
 
@@ -174,4 +177,37 @@ char *hf_format_timespan(char *buf_p,
     }
 
     return (buf_p);
+}
+
+long hf_string_to_long(const char *string_p,
+                       long minimum,
+                       long maximum,
+                       long default_value,
+                       int base)
+{
+    long value;
+    char *end_p;
+
+    errno = 0;
+    value = strtol(string_p, &end_p, base);
+
+    if ((errno == ERANGE) && ((value == LONG_MIN) || (value == LONG_MAX))) {
+        value = default_value;
+    } else if ((errno != 0) && (value == 0)) {
+        value = default_value;
+    } else if (end_p == string_p) {
+        value = default_value;
+    } else if (*end_p != '\0') {
+        value = default_value;
+    }
+
+    if (value < minimum) {
+        value = minimum;
+    }
+
+    if (value > maximum) {
+        value = maximum;
+    }
+
+    return (value);
 }

@@ -207,3 +207,13 @@ TEST(test_format_timespan_very_short_buffer)
     ASSERT_EQ(hf_format_timespan(&buf[0], sizeof(buf), 0), &buf[0]);
     ASSERT_EQ(&buf[0], "");
 }
+
+TEST(test_string_to_long)
+{
+    ASSERT_EQ(hf_string_to_long("", -10, 10, -1, 0), -1);
+    ASSERT_EQ(hf_string_to_long("0", -10, 10, -1, 0), 0);
+    ASSERT_EQ(hf_string_to_long("1", -10, 10, -1, 0), 1);
+    ASSERT_EQ(hf_string_to_long("-11", -10, 10, -1, 0), -10);
+    ASSERT_EQ(hf_string_to_long("11", -10, 10, -1, 0), 10);
+    ASSERT_EQ(hf_string_to_long("1a", -10, 10, -1, 10), -1);
+}

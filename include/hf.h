@@ -49,3 +49,13 @@ char *hf_get_hostname(char *buf_p, size_t size, const char *default_p);
 char *hf_format_timespan(char *buf_p,
                          size_t size,
                          unsigned long long timespan_ms);
+
+/**
+ * String to long conversion with limits and default value if out of
+ * range or if the string does not contain a number.
+ */
+long hf_string_to_long(const char *string_p,
+                       long minimum,
+                       long maximum,
+                       long default_value,
+                       int base);
