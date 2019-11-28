@@ -64,3 +64,9 @@ char *hf_buffer_to_string(char *dst_p,
                           size_t dst_size,
                           const void *src_p,
                           size_t src_size);
+
+/**
+ * Strip leading and trailing characters from a string. The characters
+ * to strip are given by `strip_p`.
+ */
+char *hf_strip(char *str_p, const char *strip_p);

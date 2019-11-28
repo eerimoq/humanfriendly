@@ -42,6 +42,19 @@ static void hf_null_last(char *buf_p, size_t size)
     buf_p[size - 1] = '\0';
 }
 
+static int char_in_string(char c, const char *str_p)
+{
+    while (*str_p != '\0') {
+        if (c == *str_p) {
+            return (1);
+        }
+
+        str_p++;
+    }
+
+    return (0);
+}
+
 char *hf_get_username(char *buf_p, size_t size, const char *default_p)
 {
     char *res_p;
@@ -226,4 +239,33 @@ char *hf_buffer_to_string(char *dst_p,
     dst_p[src_size] = '\0';
 
     return (dst_p);
+}
+
+char *hf_strip(char *str_p, const char *strip_p)
+{
+    char *begin_p;
+    size_t length;
+
+    /* Strip whitespace characters by default. */
+    if (strip_p == NULL) {
+        strip_p = "\t\n\x0b\x0c\r ";
+    }
+
+    /* String leading characters. */
+    while ((*str_p != '\0') && char_in_string(*str_p, strip_p)) {
+        str_p++;
+    }
+
+    begin_p = str_p;
+
+    /* Strip training characters. */
+    length = strlen(str_p);
+    str_p += (length - 1);
+
+    while ((str_p >= begin_p) && char_in_string(*str_p, strip_p)) {
+        *str_p = '\0';
+        str_p--;
+    }
+
+    return (begin_p);
 }
