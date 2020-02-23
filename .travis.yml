@@ -8,6 +8,8 @@ install:
 
 script:
   - make test
+  - make library
+  - make install PREFIX=root
 
 after_success:
   - bash <(curl -s https://codecov.io/bash) -X coveragepy

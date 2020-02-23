@@ -54,3 +54,4 @@ dkms.conf
 *.gcno
 tst/main
 nala_mocks.*
+report.json
