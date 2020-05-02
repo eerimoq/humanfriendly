@@ -27,6 +27,7 @@
  */
 
 #include <pwd.h>
+#include <stdlib.h>
 #include "hf.h"
 #include "nala.h"
 #include "nala_mocks.h"
@@ -252,6 +253,7 @@ TEST(test_file_read_all)
     buf_p = hf_file_read_all("files/foo.txt", &size);
     ASSERT_EQ(size, 7);
     ASSERT_MEMORY_EQ(buf_p, "Hello!\n", size);
+    free(buf_p);
 }
 
 TEST(test_file_read_all_size_null)
@@ -260,6 +262,7 @@ TEST(test_file_read_all_size_null)
 
     buf_p = hf_file_read_all("files/foo.txt", NULL);
     ASSERT_MEMORY_EQ(buf_p, "Hello!\n", 7);
+    free(buf_p);
 }
 
 TEST(test_file_read_all_open_error)
@@ -282,4 +285,15 @@ TEST(test_file_read_all_read_error)
 
     buf_p = hf_file_read_all("files/foo.txt", &size);
     ASSERT_EQ(buf_p, NULL);
+}
+
+TEST(test_file_read_all_empty_file)
+{
+    void *buf_p;
+    size_t size;
+
+    buf_p = hf_file_read_all("files/empty.txt", &size);
+    ASSERT_NE(buf_p, NULL);
+    ASSERT_EQ(size, 0);
+    free(buf_p);
 }

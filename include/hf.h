@@ -28,7 +28,7 @@
 
 #include <unistd.h>
 
-#define HF_VERSION "0.4.0"
+#define HF_VERSION "0.4.1"
 
 /**
  * Get the username of the currently logged in user. Returns the
