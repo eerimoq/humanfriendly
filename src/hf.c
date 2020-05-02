@@ -306,7 +306,7 @@ void *hf_file_read_all(const char *path_p, size_t *size_p)
         goto out2;
     }
 
-    if (fread(buf_p, file_size, 1, file_p) != 1) {
+    if (fread(buf_p, (size_t)file_size, 1, file_p) != 1) {
         goto out2;
     }
 
