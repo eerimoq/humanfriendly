@@ -28,7 +28,7 @@
 
 #include <unistd.h>
 
-#define HF_VERSION "0.3.0"
+#define HF_VERSION "0.4.0"
 
 /**
  * Get the username of the currently logged in user. Returns the
@@ -70,3 +70,9 @@ char *hf_buffer_to_string(char *dst_p,
  * to strip are given by `strip_p`.
  */
 char *hf_strip(char *str_p, const char *strip_p);
+
+/**
+ * Read the whole file. The returned pointer should be freed with
+ * free(). Returns NULL on failure.
+ */
+void *hf_file_read_all(const char *path_p, size_t *size_p);

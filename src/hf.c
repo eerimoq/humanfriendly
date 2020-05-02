@@ -269,3 +269,56 @@ char *hf_strip(char *str_p, const char *strip_p)
 
     return (begin_p);
 }
+
+void *hf_file_read_all(const char *path_p, size_t *size_p)
+{
+    FILE *file_p;
+    void *buf_p;
+    long file_size;
+    
+    file_p = fopen(path_p, "rb");
+
+    if (file_p == NULL) {
+        return (NULL);
+    }
+
+    if (fseek(file_p, 0, SEEK_END) != 0) {
+        goto out1;
+    }
+    
+    file_size = ftell(file_p);
+
+    if (file_size == -1) {
+        goto out1;
+    }
+
+    if (size_p != NULL) {
+        *size_p = (size_t)file_size;
+    }
+    
+    buf_p = malloc((size_t)file_size);
+
+    if (buf_p == NULL) {
+        goto out1;
+    }
+    
+    if (fseek(file_p, 0, SEEK_SET) != 0) {
+        goto out2;
+    }
+    
+    if (fread(buf_p, file_size, 1, file_p) != 1) {
+        goto out2;
+    }
+    
+    fclose(file_p);
+
+    return (buf_p);
+
+ out2:
+    free(buf_p);
+    
+ out1:
+    fclose(file_p);
+
+    return (NULL);
+}

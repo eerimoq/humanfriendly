@@ -93,8 +93,8 @@ TEST(test_get_hostname_ok)
     char buf[32];
 
     gethostname_mock_once(NULL, 32, 0);
-    gethostname_mock_ignore___name_in();
-    gethostname_mock_set___name_out("foobar", 7);
+    gethostname_mock_ignore_name_in();
+    gethostname_mock_set_name_out("foobar", 7);
 
     ASSERT_EQ(hf_get_hostname(&buf[0], sizeof(buf), ""), &buf[0]);
     ASSERT_EQ(&buf[0], "foobar");
@@ -105,7 +105,7 @@ TEST(test_get_hostname_default_null)
     char buf[32];
 
     gethostname_mock_once(NULL, 32, -1);
-    gethostname_mock_ignore___name_in();
+    gethostname_mock_ignore_name_in();
 
     ASSERT_EQ((void *)hf_get_hostname(&buf[0], sizeof(buf), NULL), NULL);
 }
@@ -115,7 +115,7 @@ TEST(test_get_hostname_default)
     char buf[32];
 
     gethostname_mock_once(NULL, 32, -1);
-    gethostname_mock_ignore___name_in();
+    gethostname_mock_ignore_name_in();
 
     ASSERT_EQ(hf_get_hostname(&buf[0], sizeof(buf), "unknown"), &buf[0]);
     ASSERT_EQ(&buf[0], "unknown");
@@ -126,7 +126,7 @@ TEST(test_get_hostname_default_longer_than_buffer)
     char buf[32];
 
     gethostname_mock_once(NULL, 32, -1);
-    gethostname_mock_ignore___name_in();
+    gethostname_mock_ignore_name_in();
 
     ASSERT_EQ(hf_get_hostname(&buf[0],
                               sizeof(buf),
@@ -138,7 +138,7 @@ TEST(test_get_hostname_default_longer_than_buffer)
 TEST(test_format_timespan)
 {
     char buf[128];
-    int i;
+    size_t i;
     struct data_t {
         unsigned long long timespan_ms;
         const char *expected_p;
@@ -235,11 +235,51 @@ TEST(test_buffer_to_string)
     char buf[8];
 
     ASSERT_EQ(hf_buffer_to_string(&buf[0], sizeof(buf), "", 0), &buf[0]);
-    ASSERT_MEMORY(&buf[0], "", 1);
+    ASSERT_MEMORY_EQ(&buf[0], "", 1);
 
     ASSERT_EQ(hf_buffer_to_string(&buf[0], sizeof(buf), "1", 1), &buf[0]);
-    ASSERT_MEMORY(&buf[0], "1", 2);
+    ASSERT_MEMORY_EQ(&buf[0], "1", 2);
 
     ASSERT_EQ(hf_buffer_to_string(&buf[0], sizeof(buf), "12345678", 8), &buf[0]);
-    ASSERT_MEMORY(&buf[0], "1234567", 8);
+    ASSERT_MEMORY_EQ(&buf[0], "1234567", 8);
+}
+
+TEST(test_file_read_all)
+{
+    void *buf_p;
+    size_t size;
+
+    buf_p = hf_file_read_all("files/foo.txt", &size);
+    ASSERT_EQ(size, 7);
+    ASSERT_MEMORY_EQ(buf_p, "Hello!\n", size);
+}
+
+TEST(test_file_read_all_size_null)
+{
+    void *buf_p;
+
+    buf_p = hf_file_read_all("files/foo.txt", NULL);
+    ASSERT_MEMORY_EQ(buf_p, "Hello!\n", 7);
+}
+
+TEST(test_file_read_all_open_error)
+{
+    void *buf_p;
+    size_t size;
+
+    fclose_mock_none();
+
+    buf_p = hf_file_read_all("files/missing.txt", &size);
+    ASSERT_EQ(buf_p, NULL);
+}
+
+TEST(test_file_read_all_read_error)
+{
+    void *buf_p;
+    size_t size;
+
+    fread_mock_once(7, 1, -1);
+
+    buf_p = hf_file_read_all("files/foo.txt", &size);
+    ASSERT_EQ(buf_p, NULL);
 }
